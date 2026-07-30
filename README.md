@@ -26,3 +26,16 @@ Es ist die neutrale Achse zwischen AXI, 6d und API.
 ## Status
 STATE = STABIL  
 READY = 100%
+# reM – Stationseinheit
+
+reM ist eine Station, die sich beim System anmeldet und anhand der
+CSV-Datei `re-zustand-modi-9-4.csv` ihren Betriebsmodus erhält.
+
+Nur bestimmte Modi erlauben eine Buchung (z. B. ACTIVE, READY).
+
+reM besteht aus:
+- reM_State.js
+- reM_Register.js
+- reM_Booking.js
+
+index.html zeigt den aktuellen Zustand der Station.
