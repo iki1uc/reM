@@ -1,16 +1,133 @@
+<!DOCTYPE html>
+<html lang="de">
+<head>
+<meta charset="UTF-8">
+<title>reM – Master Index</title>
+
+<style>
+body {
+  font-family: serif;
+  background: #f4f4f4;
+  padding: 40px;
+  color: #222;
+}
+
+.section {
+  margin: 20px auto;
+  max-width: 1000px;
+  padding: 20px;
+  border-left: 4px solid #444;
+  background: white;
+}
+
+.title {
+  font-size: 24px;
+  font-weight: bold;
+  margin-bottom: 10px;
+}
+
+.block {
+  margin: 10px 0;
+  padding: 10px;
+  background: #fafafa;
+  border: 1px solid #ddd;
+}
+
+.point {
+  font-size: 14px;
+  color: #333;
+}
+</style>
+</head>
+
+<body>
+
+<h1>reM – Master Index</h1>
+
+<div id="zustand"></div>
+<div id="register"></div>
+<div id="booking"></div>
+
 <script type="module">
-    import { reM_register } from "./reM_Register.js";
-    import { reM_isBookable } from "./reM_Booking.js";
-    import { reM_State } from "./reM_State.js";
 
-    async function run() {
+// CSV Loader
+async function loadCSV(path) {
+  const text = await fetch(path).then(r => r.text());
+  const lines = text.trim().split("\n");
+  const header = lines[0].split(";");
+  return lines.slice(1).map(line => {
+    const cols = line.split(";");
+    const obj = {};
+    header.forEach((h, i) => obj[h] = cols[i]);
+    return obj;
+  });
+}
 
-        await reM_register();
-        reM_isBookable();
+// Load reM Modules
+import * as State from "./reM_State.js";
+import * as Register from "./reM_Register.js";
+import * as Booking from "./reM_Booking.js";
 
-        document.getElementById("runtime").innerText =
-            JSON.stringify(reM_State, null, 2);
-    }
+// Render Zustand CSV
+async function renderZustand() {
+  const raw = await loadCSV("./re-zustand-modi-9-4.csv");
+  const html = raw.map(r =>
+    `<div class="block">
+       <span class="point">
+         id:${r.id} | modi:${r.modi} | zustand:${r.zustand}
+       </span>
+     </div>`
+  ).join("");
 
-    run();
+  document.getElementById("zustand").innerHTML =
+    `<div class="section">
+       <div class="title">Zustand – modi 9/4</div>
+       ${html}
+     </div>`;
+}
+
+// Render Register
+function renderRegister() {
+  const data = Register.reM_register();
+  const html = data.map(r =>
+    `<div class="block">
+       <span class="point">
+         key:${r.key} | value:${r.value}
+       </span>
+     </div>`
+  ).join("");
+
+  document.getElementById("register").innerHTML =
+    `<div class="section">
+       <div class="title">Register</div>
+       ${html}
+     </div>`;
+}
+
+// Render Booking
+function renderBooking() {
+  const data = Booking.reM_booking();
+  const html = data.map(r =>
+    `<div class="block">
+       <span class="point">
+         id:${r.id} | type:${r.type} | time:${r.time}
+       </span>
+     </div>`
+  ).join("");
+
+  document.getElementById("booking").innerHTML =
+    `<div class="section">
+       <div class="title">Booking</div>
+       ${html}
+     </div>`;
+}
+
+// Run all
+renderZustand();
+renderRegister();
+renderBooking();
+
 </script>
+
+</body>
+</html>
